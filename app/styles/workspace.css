@@ -1,0 +1,66 @@
+.workspace-container {
+  display: grid;
+  grid-template-columns: 75% 25%;
+}
+
+.custom-button {
+  display: block;
+  min-width: 200px;
+  padding: 10px 20px;
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  background-color: #007bff;
+  color: #fff;
+  margin: 5px;
+}
+
+.custom-button:disabled {
+  background-color: #999;
+  cursor: not-allowed;
+}
+
+.custom-button.delete {
+  background-color: #dc3545;
+}
+
+.custom-button.delete:disabled {
+  background-color: #999;
+  cursor: not-allowed;
+}
+
+.custom-button.hide {
+  background-color: #6c757d;
+}
+
+.custom-button.show {
+  background-color: #28a745;
+}
+  
+.event-results {
+  height: 100px;
+  overflow-y: scroll;
+  background-color: #f8f9fa;
+  border: 1px solid #e9ecef;
+  padding: 15px;
+}
+
+#ide {
+  height: 90vh;
+  margin: 0;
+  display: flex;
+  padding-bottom: 4rem;
+  position: relative;
+}
+
+#menu {
+  max-width: none;
+  height: 90vh;
+  padding: 2rem;
+  font-weight: normal;
+  margin-left: 20px;
+  display: inline-block;
+}

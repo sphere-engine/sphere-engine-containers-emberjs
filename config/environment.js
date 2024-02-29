@@ -3,6 +3,7 @@
 module.exports = function (environment) {
   const ENV = {
     modulePrefix: 'sphere-engine-containers-emberjs',
+    //WORKSPACE_ID: process.env.WORKSPACE_ID,
     environment,
     rootURL: '/',
     locationType: 'history',
