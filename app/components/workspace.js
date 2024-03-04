@@ -1,14 +1,16 @@
 import Component from '@glimmer/component';
 import { action } from '@ember/object';
 import { tracked } from '@glimmer/tracking';
+import { inject as service } from '@ember/service';
 
 export default class WorkspaceComponent extends Component {
+  @service modals;
   @tracked SE_BASE = 'containers.sphere-engine.com';
   @tracked workspaceId = '';
-  @tracked projects = [];
   @tracked isCreateButtonDisabled = true;
   @tracked isRemoveButtonDisabled = true;
   @tracked sdkLoaded = false;
+  @tracked isModalOpen = false;
 
   constructor() {
     super(...arguments);
@@ -19,11 +21,22 @@ export default class WorkspaceComponent extends Component {
     if (!window.SE) {
       window.SE_BASE = this.SE_BASE;
       window.SE_HTTPS = true;
+      const seReady = (f) => {
+        if (
+          document.readyState !== 'loading' &&
+          document.readyState !== 'interactive'
+        ) {
+          f();
+        } else {
+          window.addEventListener('load', f);
+        }
+      };
       const script = document.createElement('script');
       script.src = `https://${this.SE_BASE}/static/sdk/sdk.min.js`;
       script.async = true;
       script.onload = () => {
-        window.SE.ready(() => {
+        console.log(window.SE.ready);
+        seReady(() => {
           this.sdkLoaded = true;
           // SDK loaded, you can initialize workspace here if needed
         });
@@ -136,9 +149,14 @@ export default class WorkspaceComponent extends Component {
   @action
   destroyWorkspace() {
     let workspace = window.SE.workspace('seco-workspace');
+    let element = document.getElementById('seco-workspace');
 
     if (workspace) {
       workspace.destroy();
+    }
+
+    if (element) {
+      element.remove();
     }
   }
 
@@ -173,5 +191,16 @@ export default class WorkspaceComponent extends Component {
       workspace.events.unsubscribe(selectedEvent, this.handleEvent);
       console.log('Unsubscribed to event: ' + selectedEvent);
     }
+  }
+
+  @action
+  handleOpenModal() {
+    this.isModalOpen = true;
+  }
+
+  @action
+  closeModal() {
+    this.destroyWorkspace();
+    this.isModalOpen = false;
   }
 }

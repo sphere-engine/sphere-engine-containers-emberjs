@@ -8,11 +8,13 @@
       <input type="text" id="workspaceIdInput" class="custom-input" placeholder="Your Workspace ID" value={{this.accessToken}} />
       <button class="custom-button inline" {{action "addWorkspaceId"}}>Add Workspace ID</button>
     </div>
+    <p>Current workspace ID: {{this.workspaceId}}</p>
     <h1>Workspace Management</h1>
     <button class="custom-button" {{action "createWorkspace"}} disabled={{this.isCreateButtonDisabled}} title={{if this.isCreateButtonDisabled "Workspace already exists" "Create a new workspace"}}>Create Workspace</button>
     <button class="custom-button delete" {{action "deleteWorkspace"}} disabled={{this.isRemoveButtonDisabled}}>Remove Workspace</button>
     <button class="custom-button hide" {{action "hideWorkspace"}}>Destroy Workspace</button>
     <button class="custom-button show" {{action "showWorkspace"}}>Render Workspace</button>
+    <button class="custom-button show" {{action 'handleOpenModal'}}>Open in modal</button>
     <h1>Events</h1>
     <div class="custom-container">
       <select id="eventChoice" class="custom-select">
@@ -27,4 +29,10 @@
       <pre id="result" class="event-results"></pre>
     </div>
   </div>
+  {{#if this.isModalOpen}}
+    {{workspace-modal 
+      onClose=(action "closeModal") 
+      showWorkspace=(action "showWorkspace") 
+      workspaceId=this.workspaceId}}
+  {{/if}}
 </div>
