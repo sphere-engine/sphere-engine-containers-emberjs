@@ -4,7 +4,7 @@
   <div class="modal-content">
     <button class="close-button" {{action (fn this.onClose)}}>&times;</button>
     <div class="modal-body">
-        <div id="seco-workspace" data-id="seco-workspace" data-workspace={{@workspaceId}} ></div>
+        <div id="modal-workspace" data-id="modal-workspace" data-workspace={{@workspaceId}}></div>
         <button type="button" class="custom-button" {{action (fn this.showWorkspace)}}>Render</button>
     </div>
   </div>

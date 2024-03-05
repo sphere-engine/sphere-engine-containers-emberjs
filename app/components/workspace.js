@@ -8,9 +8,9 @@ export default class WorkspaceComponent extends Component {
   @tracked SE_BASE = 'containers.sphere-engine.com';
   @tracked workspaceId = '';
   @tracked isCreateButtonDisabled = true;
-  @tracked isRemoveButtonDisabled = true;
   @tracked sdkLoaded = false;
   @tracked isModalOpen = false;
+  @tracked visible = true;
 
   constructor() {
     super(...arguments);
@@ -105,7 +105,12 @@ export default class WorkspaceComponent extends Component {
   */
 
   @action
-  hideWorkspace() {
+  changeWorkspaceVisibility() {
+    this.visible = !this.visible;
+  }
+
+  @action
+  removeWorkspace() {
     this.destroyWorkspace();
   }
 
@@ -149,14 +154,9 @@ export default class WorkspaceComponent extends Component {
   @action
   destroyWorkspace() {
     let workspace = window.SE.workspace('seco-workspace');
-    let element = document.getElementById('seco-workspace');
 
     if (workspace) {
       workspace.destroy();
-    }
-
-    if (element) {
-      element.remove();
     }
   }
 
@@ -200,7 +200,6 @@ export default class WorkspaceComponent extends Component {
 
   @action
   closeModal() {
-    this.destroyWorkspace();
     this.isModalOpen = false;
   }
 }
