@@ -1,0 +1,42 @@
+<div class="workspace-container">
+  <div id="ide" style={{if this.visible (concat "visibility: visible; height: " this.ideSize "; width: " this.ideSize) "visibility: hidden;"}}>
+        <Workspace
+          @workspaceId={{this.workspaceId}}
+          @elemId={{this.elemId}}
+          @did-insert={{this.showWorkspace}}
+        />
+  </div>
+  <div id="menu">
+    <h1>Workspace ID</h1>
+    <div class="custom-container">
+      <input type="text" id="workspaceIdInput" class="custom-input" placeholder="Your Workspace ID" value={{this.accessToken}} />
+      <button class="custom-button inline" {{action "addWorkspaceId"}}>Add Workspace ID</button>
+    </div>
+    <p>Current workspace ID: {{this.workspaceId}}</p>
+    <h1>Workspace Management</h1>
+    <button class="custom-button" {{action "renderWorkspace"}} >Create Workspace</button>
+    <button class="custom-button delete" {{action "destroyWorkspace"}}>Destroy Workspace</button>
+    <button class="custom-button show" {{action "changeWorkspaceVisibility"}}>{{if this.visible "Hide" "Show"}} Workspace</button>
+    <button class="custom-button show" {{action 'handleOpenModal'}}>Open in modal</button>
+    <button class="custom-button show" {{action 'changeSize'}}>Resize</button>
+    <h1>Events</h1>
+    <div class="custom-container">
+      <select id="eventChoice" class="custom-select">
+        <option value="afterScenarioExecution">afterScenarioExecution</option>
+        <option value="afterScenarioExecutionExt">afterScenarioExecutionExt</option>
+      </select>
+      <button class="custom-button inline" {{action "subscribe"}}>Subscribe</button>
+      <button class="custom-button inline" {{action "unsubscribe"}}>Unsubscribe</button>
+    </div>
+    <div id="event-results">
+      <h2>Event Results</h2>
+      <pre id="result" class="event-results"></pre>
+    </div>
+  </div>
+  {{#if this.isModalOpen}}
+    {{workspace-modal 
+      onClose=(action "closeModal") 
+      workspaceId=this.workspaceId
+      }}
+  {{/if}}
+</div>
