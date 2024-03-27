@@ -1,27 +1,39 @@
 <div class="workspace-container">
-  <div id="ide" style={{if this.visible (concat "visibility: visible; height: " this.ideSize "; width: " this.ideSize) "visibility: hidden;"}}>
-        <Workspace
-          @workspaceId={{this.workspaceId}}
-          @elemId={{this.elemId}}
-          @did-insert={{this.showWorkspace}}
-        />
+  <div id="ide">
+        {{#each this.workspaceIds as |workspaceId|}}
+          <div id={{workspaceId}} style={{if (get this.visible workspaceId) (concat "visibility: visible; height: " (get this.sizes workspaceId) "; width: " (get this.sizes workspaceId)) "visibility: hidden;" }}>
+            <Workspace
+              @workspaceId={{workspaceId}}
+              @elemId={{concat workspaceId "-container"}}
+              @did-insert={{this.showWorkspace}}
+            />
+          </div>
+        {{/each}}
   </div>
   <div id="menu">
-    <h1>Workspace ID</h1>
     <div class="custom-container">
       <input type="text" id="workspaceIdInput" class="custom-input" placeholder="Your Workspace ID" value={{this.accessToken}} />
-      <button class="custom-button inline" {{action "addWorkspaceId"}}>Add Workspace ID</button>
+      <button class="custom-button inline" {{action "addWorkspaceId"}}>Add Workspace</button>
     </div>
-    <p>Current workspace ID: {{this.workspaceId}}</p>
-    <h1>Workspace Management</h1>
-    <button class="custom-button" {{action "renderWorkspace"}} >Create Workspace</button>
-    <button class="custom-button delete" {{action "destroyWorkspace"}}>Destroy Workspace</button>
-    <button class="custom-button show" {{action "changeWorkspaceVisibility"}}>{{if this.visible "Hide" "Show"}} Workspace</button>
+    <p>Current workspace ID: {{this.currentWorkspaceId}}</p>
+    <p>Select workspace to use:</p>
+    <div class="workspace-ids">
+      <select id="workspace-choice" class="form-select form-select-sm" onchange={{action this.setCurrentWorkspace value="target.value"}}>
+        <option value="" selected disabled>Choose workspace</option> 
+        {{#each this.workspaceIds as |workspaceId|}}
+          <option value={{workspaceId}}>{{workspaceId}}</option>
+        {{/each}}
+      </select>
+    </div>
+    <h2>Workspace Management</h2>
+    <button class="custom-button" {{action "renderWorkspace"}} >Load Workspace</button>
+    <button class="custom-button delete" {{action "destroyWorkspace"}}>Remove Workspace</button>
+    <button class="custom-button show" {{on "click" (fn this.changeWorkspaceVisibility this.currentWorkspaceId)}}>{{if this.currentWorkspaceVisibility "Hide" "Show"}} Workspace</button>
     <button class="custom-button show" {{action 'handleOpenModal'}}>Open in modal</button>
-    <button class="custom-button show" {{action 'changeSize'}}>Resize</button>
-    <h1>Events</h1>
+    <button class="custom-button show" {{on "click" (fn this.changeSize this.currentWorkspaceId)}}>Resize</button>
+    <h2>Events</h2>
     <div class="custom-container">
-      <select id="eventChoice" class="custom-select">
+      <select id="eventChoice" class="form-select form-select-sm">
         <option value="afterScenarioExecution">afterScenarioExecution</option>
         <option value="afterScenarioExecutionExt">afterScenarioExecutionExt</option>
       </select>
@@ -29,14 +41,14 @@
       <button class="custom-button inline" {{action "unsubscribe"}}>Unsubscribe</button>
     </div>
     <div id="event-results">
-      <h2>Event Results</h2>
+      <h3>Event Results</h3>
       <pre id="result" class="event-results"></pre>
     </div>
   </div>
   {{#if this.isModalOpen}}
     {{workspace-modal 
       onClose=(action "closeModal") 
-      workspaceId=this.workspaceId
+      workspaceId=this.currentWorkspaceId
       }}
   {{/if}}
 </div>

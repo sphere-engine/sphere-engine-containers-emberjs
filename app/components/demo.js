@@ -4,13 +4,14 @@ import { tracked } from '@glimmer/tracking';
 
 export default class DemoComponent extends Component {
   @tracked SE_BASE = 'containers.sphere-engine.com';
-  @tracked workspaceId = '';
-  @tracked isCreateButtonDisabled = true;
   @tracked sdkLoaded = false;
   @tracked isModalOpen = false;
-  @tracked visible = true;
+  @tracked visible = {};
   @tracked elemId = '';
-  @tracked ideSize = '100%';
+  @tracked sizes = {};
+  @tracked workspaceIds = [];
+  @tracked currentWorkspaceId = '';
+  @tracked currentWorkspaceVisibility = true;
 
   constructor() {
     super(...arguments);
@@ -51,51 +52,74 @@ export default class DemoComponent extends Component {
   @action
   async addWorkspaceId() {
     const inputElement = document.getElementById('workspaceIdInput');
-    if (inputElement) {
-      this.workspaceId = inputElement.value;
-      this.elemId = `${this.workspaceId}-container`;
+    if (inputElement && inputElement.value !== "") {
+      if (this.workspaceIds == []) {
+        this.elemId = `${this.currentWorkspaceId}-container`;
+      }
+      this.workspaceIds = [...this.workspaceIds, inputElement.value];
+      this.visible = { ...this.visible, [inputElement.value]: true };
+      this.sizes = { ...this.sizes, [inputElement.value]: '100%'};
     }
   }
 
   @action
-  changeSize() {
-    if (this.ideSize == '100%') {
-      this.ideSize = '80%';
-    } else {
-      this.ideSize = '100%';
+  async setCurrentWorkspace(id) {
+    this.currentWorkspaceId = id;
+    this.elemId = `${this.currentWorkspaceId}-container`;
+    this.currentWorkspaceVisibility = this.visible[this.currentWorkspaceId] ? this.visible[this.currentWorkspaceId] : true;
+  }
+
+  @action
+  async removeWorkspaceId(idToRemove) {
+    this.workspaceIds = this.workspaceIds.filter(id => id !== idToRemove);
+  }
+
+  @action
+  changeSize(id) {
+    if (this.sizes.hasOwnProperty(id)) {
+      if (this.sizes[id] == '100%') {
+        this.sizes = { ...this.sizes, [id]: '80%'};
+      } else {
+        this.sizes = { ...this.sizes, [id]: '100%'};
+      }
     }
   }
 
   @action
-  changeWorkspaceVisibility() {
-    this.visible = !this.visible;
+  changeWorkspaceVisibility(id) {
+    if (this.visible.hasOwnProperty(id)) {
+      this.visible = { ...this.visible, [id]: !this.visible[id] };
+      this.currentWorkspaceVisibility = this.visible[this.currentWorkspaceId];
+    }
   }
 
   @action
   renderWorkspace() {
-    let element = document.getElementById(this.elemId);
+    if (this.currentWorkspaceId) {
+      let element = document.getElementById(this.elemId);
 
-    if (!element) {
-      element = document.createElement('div');
-      element.id = this.elemId;
-      if (this.workspaceId === '') {
-        let oldWorkspaceId = localStorage.getItem('workspaceId');
-        if (oldWorkspaceId != null) {
-          this.workspaceId = oldWorkspaceId;
+      if (!element) {
+        element = document.createElement('div');
+        element.id = this.elemId;
+        if (this.currentWorkspaceId === '') {
+          let oldWorkspaceId = localStorage.getItem('workspaceId');
+          if (oldWorkspaceId != null) {
+            this.currentWorkspaceId = oldWorkspaceId;
+          }
+        }
+
+        element.setAttribute('data-workspace', this.currentWorkspaceId);
+
+        const ide = document.getElementById("ide");
+        if (ide) {
+          ide.appendChild(element);
         }
       }
 
-      element.setAttribute('data-workspace', this.workspaceId);
-
-      const ide = document.getElementById('ide');
-      if (ide) {
-        ide.appendChild(element);
+      const workspace = window.SE.workspace(this.elemId);
+      if (!workspace) {
+        window.SE.create(this.elemId, document.getElementById(this.elemId));
       }
-    }
-
-    const workspace = window.SE.workspace(this.elemId);
-    if (!workspace) {
-      window.SE.create(this.elemId, document.getElementById(this.elemId));
     }
   }
 
@@ -106,6 +130,21 @@ export default class DemoComponent extends Component {
     if (workspace) {
       workspace?.destroy();
       console.log('Workspace destroyed');
+    }
+
+    this.workspaceIds = this.workspaceIds.filter(id => id !== this.currentWorkspaceId);
+
+    if (this.workspaceIds.length > 0) {
+      this.currentWorkspaceId = this.workspaceIds[0];
+      this.elemId = `${this.currentWorkspaceId}-container`;
+    } else {
+      this.currentWorkspaceId = null;
+      this.elemId = null;
+    }
+
+    let workspaceChoice = document.getElementById('workspace-choice');
+    if (workspaceChoice) {
+      workspaceChoice.value = '';
     }
   }
 
