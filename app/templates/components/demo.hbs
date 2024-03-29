@@ -1,7 +1,7 @@
 <div class="workspace-container">
   <div id="ide">
         {{#each this.workspaceIds as |workspaceId|}}
-          <div id={{workspaceId}} style={{if (get this.visible workspaceId) (concat "visibility: visible; height: " (get this.sizes workspaceId) "; width: " (get this.sizes workspaceId)) "visibility: hidden;" }}>
+          <div id={{workspaceId}} style={{if (this.equalsHelper this.currentWorkspaceId workspaceId) (if (get this.visible workspaceId) (concat "visibility: visible; height: " (get this.sizes workspaceId) "; width: " (get this.sizes workspaceId)) "visibility: hidden;") "display: none;" }}>
             <Workspace
               @workspaceId={{workspaceId}}
               @elemId={{concat workspaceId "-container"}}
@@ -14,6 +14,13 @@
     <div class="custom-container">
       <input type="text" id="workspaceIdInput" class="custom-input" placeholder="Your Workspace ID" value={{this.accessToken}} />
       <button class="custom-button inline" {{action "addWorkspaceId"}}>Add Workspace</button>
+      <div class="alert-container">
+      {{#if this.addedId}}
+        <div class="alert alert-success" role="alert">
+          Added workspace with ID <strong>{{this.addedId}}</strong>
+        </div>
+      {{/if}}
+      </div>
     </div>
     <p>Current workspace ID: {{this.currentWorkspaceId}}</p>
     <p>Select workspace to use:</p>
@@ -33,7 +40,7 @@
     <button class="custom-button show" {{on "click" (fn this.changeSize this.currentWorkspaceId)}}>Resize</button>
     <h2>Events</h2>
     <div class="custom-container">
-      <select id="eventChoice" class="form-select form-select-sm">
+      <select id="eventChoice" class="form-select form-select-sm" onchange={{action this.setCurrentEvent value="target.value"}}>
         <option value="afterScenarioExecution">afterScenarioExecution</option>
         <option value="afterScenarioExecutionExt">afterScenarioExecutionExt</option>
       </select>
@@ -42,7 +49,8 @@
     </div>
     <div id="event-results">
       <h3>Event Results</h3>
-      <pre id="result" class="event-results"></pre>
+      <pre class="event-results">{{this.eventResult}}</pre>
+      <button class="custom-button inline" {{action "clearEventResults"}}>Clear Results</button>
     </div>
   </div>
   {{#if this.isModalOpen}}

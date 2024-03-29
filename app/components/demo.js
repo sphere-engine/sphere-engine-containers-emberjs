@@ -1,64 +1,38 @@
 import Component from '@glimmer/component';
 import { action } from '@ember/object';
 import { tracked } from '@glimmer/tracking';
+import { inject as service } from '@ember/service';
 
 export default class DemoComponent extends Component {
-  @tracked SE_BASE = 'containers.sphere-engine.com';
-  @tracked sdkLoaded = false;
+  @service sdkLoader;
   @tracked isModalOpen = false;
   @tracked visible = {};
   @tracked elemId = '';
   @tracked sizes = {};
+  @tracked subscriptions = {};
+  @tracked currentEvent = 'afterScenarioExecution';
   @tracked workspaceIds = [];
   @tracked currentWorkspaceId = '';
   @tracked currentWorkspaceVisibility = true;
+  @tracked addedId = null;
+  @tracked eventResult = '';
 
   constructor() {
     super(...arguments);
-    this.loadSdk();
-  }
-
-  async loadSdk() {
-    if (!window.SE) {
-      window.SE_BASE = this.SE_BASE;
-      window.SE_HTTPS = true;
-      const seReady = (f) => {
-        if (
-          document.readyState !== 'loading' &&
-          document.readyState !== 'interactive'
-        ) {
-          f();
-        } else {
-          window.addEventListener('load', f);
-        }
-      };
-      const script = document.createElement('script');
-      script.src = `https://${this.SE_BASE}/static/sdk/sdk.min.js`;
-      script.async = true;
-      script.onload = () => {
-        console.log(window.SE.ready);
-        seReady(() => {
-          this.sdkLoaded = true;
-          // SDK loaded, you can initialize workspace here if needed
-        });
-      };
-      document.body.appendChild(script);
-    } else {
-      this.sdkLoaded = true;
-      // SDK loaded, you can initialize workspace here if needed
-    }
+    this.sdkLoader.loadSdk();
   }
 
   @action
   async addWorkspaceId() {
     const inputElement = document.getElementById('workspaceIdInput');
-    if (inputElement && inputElement.value !== "") {
+    if (inputElement && inputElement.value !== "" && !this.workspaceIds.includes(inputElement.value) ) {
       if (this.workspaceIds == []) {
         this.elemId = `${this.currentWorkspaceId}-container`;
       }
       this.workspaceIds = [...this.workspaceIds, inputElement.value];
       this.visible = { ...this.visible, [inputElement.value]: true };
       this.sizes = { ...this.sizes, [inputElement.value]: '100%'};
+      this.addedId = inputElement.value;
     }
   }
 
@@ -66,7 +40,7 @@ export default class DemoComponent extends Component {
   async setCurrentWorkspace(id) {
     this.currentWorkspaceId = id;
     this.elemId = `${this.currentWorkspaceId}-container`;
-    this.currentWorkspaceVisibility = this.visible[this.currentWorkspaceId] ? this.visible[this.currentWorkspaceId] : true;
+    this.currentWorkspaceVisibility = this.visible[this.currentWorkspaceId] || false;
   }
 
   @action
@@ -150,11 +124,8 @@ export default class DemoComponent extends Component {
 
   @action
   handleEvent(e) {
-    document.getElementById('result').textContent = JSON.stringify(
-      e.data,
-      null,
-      2,
-    );
+    let newResult = JSON.stringify(e.data, null, 2);
+    this.eventResult = 'workspace: ' + this.currentWorkspaceId + '\n' + newResult + '\n\n' + this.eventResult;
   }
 
   @action
@@ -166,6 +137,14 @@ export default class DemoComponent extends Component {
       let workspace = window.SE.workspace(this.elemId);
       workspace.events.subscribe(selectedEvent, this.handleEvent);
       console.log('Subscribed to event: ' + selectedEvent);
+      this.subscriptions = {
+        ...this.subscriptions,
+        [this.currentWorkspaceId]: {
+          ...this.subscriptions[this.currentWorkspaceId],
+          [this.currentEvent]: true
+        }
+      };
+      console.log(this.subscriptions)
     }
   }
 
@@ -178,7 +157,20 @@ export default class DemoComponent extends Component {
       let workspace = window.SE.workspace(this.elemId);
       workspace.events.unsubscribe(selectedEvent, this.handleEvent);
       console.log('Unsubscribed to event: ' + selectedEvent);
+      this.subscriptions = {
+        ...this.subscriptions,
+        [this.currentWorkspaceId]: {
+          ...this.subscriptions[this.currentWorkspaceId],
+          [this.currentEvent]: false
+        }
+      };
+      console.log(this.subscriptions)
     }
+  }
+
+  @action
+  clearEventResults() {
+    this.eventResult = '';
   }
 
   @action
@@ -189,5 +181,19 @@ export default class DemoComponent extends Component {
   @action
   closeModal() {
     this.isModalOpen = false;
+  }
+
+  @action
+  equalsHelper(v1, v2) {
+    if (v1 === v2) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  @action
+  async setCurrentEvent(event) {
+    this.currentEvent = event;
   }
 }

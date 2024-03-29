@@ -5,7 +5,9 @@
     <button class="btn-close close-button" {{action (fn this.onClose)}}></button>
     <div class="modal-body" style={{"height: 500px; width: 100%;"}}>
         <div id="modal-workspace" data-id="modal-workspace" data-workspace={{@workspaceId}}></div>
-        <button type="button" class="custom-button" {{action (fn this.showWorkspace)}}>Render</button>
+        {{#unless this.isRendered}}
+          <button type="button" class="custom-button" {{action (fn this.showWorkspace)}}>Render</button>
+        {{/unless}}
     </div>
   </div>
 </div>

@@ -2,8 +2,11 @@
 /* eslint-disable ember/no-component-lifecycle-hooks */
 import Component from '@glimmer/component';
 import { action } from '@ember/object';
+import { tracked } from '@glimmer/tracking';
 
 export default class WorkspaceModalComponent extends Component {
+  @tracked isRendered = false;
+
   @action
   onClose() {
     if (this.args.onClose) {
@@ -45,5 +48,7 @@ export default class WorkspaceModalComponent extends Component {
         document.getElementById('modal-workspace'),
       );
     }
+
+    this.isRendered = true;
   }
 }

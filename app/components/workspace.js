@@ -24,15 +24,5 @@ export default class WorkspaceComponent extends Component {
       console.log('Workspace destroyed');
     }
   }
-
-  constructor() {
-    super(...arguments);
-    this.setupWorkspace();
-  }
-
-  willDestroy() {
-    this.destroyWorkspace();
-    super.willDestroy(...arguments);
-  }
   */
 }

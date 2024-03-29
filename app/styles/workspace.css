@@ -93,3 +93,9 @@
 h2, h3 {
   margin-top: 15px;
 }
+
+.alert-container {
+  width: 100%;
+  min-height: 75px;
+  font-size: small;
+}
