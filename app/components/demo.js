@@ -5,6 +5,7 @@ import { inject as service } from '@ember/service';
 
 export default class DemoComponent extends Component {
   @service sdkLoader;
+  @service workspaceService;
   @tracked isModalOpen = false;
   @tracked visible = {};
   @tracked elemId = '';
@@ -16,6 +17,8 @@ export default class DemoComponent extends Component {
   @tracked currentWorkspaceVisibility = true;
   @tracked addedId = null;
   @tracked eventResult = '';
+  @tracked workspaceIdInputValue = '';
+
 
   constructor() {
     super(...arguments);
@@ -23,16 +26,20 @@ export default class DemoComponent extends Component {
   }
 
   @action
+  updateWorkspaceIdInputValue(event) {
+    this.workspaceIdInputValue = event.target.value;
+  }
+
+  @action
   async addWorkspaceId() {
-    const inputElement = document.getElementById('workspaceIdInput');
-    if (inputElement && inputElement.value !== "" && !this.workspaceIds.includes(inputElement.value) ) {
+    if (this.workspaceIdInputValue !== "" && !this.workspaceIds.includes(this.workspaceIdInputValue) ) {
       if (this.workspaceIds == []) {
         this.elemId = `${this.currentWorkspaceId}-container`;
       }
-      this.workspaceIds = [...this.workspaceIds, inputElement.value];
-      this.visible = { ...this.visible, [inputElement.value]: true };
-      this.sizes = { ...this.sizes, [inputElement.value]: '100%'};
-      this.addedId = inputElement.value;
+      this.workspaceIds = [...this.workspaceIds, this.workspaceIdInputValue];
+      this.visible = { ...this.visible, [this.workspaceIdInputValue]: true };
+      this.sizes = { ...this.sizes, [this.workspaceIdInputValue]: '100%'};
+      this.addedId = this.workspaceIdInputValue;
     }
   }
 
@@ -90,21 +97,13 @@ export default class DemoComponent extends Component {
         }
       }
 
-      const workspace = window.SE.workspace(this.elemId);
-      if (!workspace) {
-        window.SE.create(this.elemId, document.getElementById(this.elemId));
-      }
+      this.workspaceService.render(this.currentWorkspaceId);
     }
   }
 
   @action
   destroyWorkspace() {
-    let workspace = window.SE.workspace(this.elemId);
-
-    if (workspace) {
-      workspace?.destroy();
-      console.log('Workspace destroyed');
-    }
+    this.workspaceService.destroy(this.currentWorkspaceId);
 
     this.workspaceIds = this.workspaceIds.filter(id => id !== this.currentWorkspaceId);
 
@@ -144,7 +143,6 @@ export default class DemoComponent extends Component {
           [this.currentEvent]: true
         }
       };
-      console.log(this.subscriptions)
     }
   }
 
@@ -164,7 +162,6 @@ export default class DemoComponent extends Component {
           [this.currentEvent]: false
         }
       };
-      console.log(this.subscriptions)
     }
   }
 

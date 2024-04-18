@@ -1,18 +1,16 @@
 <div class="workspace-container">
   <div id="ide">
         {{#each this.workspaceIds as |workspaceId|}}
-          <div id={{workspaceId}} style={{if (this.equalsHelper this.currentWorkspaceId workspaceId) (if (get this.visible workspaceId) (concat "visibility: visible; height: " (get this.sizes workspaceId) "; width: " (get this.sizes workspaceId)) "visibility: hidden;") "display: none;" }}>
+          <div style={{if (this.equalsHelper this.currentWorkspaceId workspaceId) (if (get this.visible workspaceId) (concat "visibility: visible; height: " (get this.sizes workspaceId) "; width: " (get this.sizes workspaceId)) "visibility: hidden;") "display: none;" }}>
             <Workspace
               @workspaceId={{workspaceId}}
-              @elemId={{concat workspaceId "-container"}}
-              @did-insert={{this.showWorkspace}}
             />
           </div>
         {{/each}}
   </div>
   <div id="menu">
     <div class="custom-container">
-      <input type="text" id="workspaceIdInput" class="custom-input" placeholder="Your Workspace ID" value={{this.accessToken}} />
+      <input type="text" class="custom-input" placeholder="Your Workspace ID" value={{this.workspaceIdInputValue}} {{on "input" this.updateWorkspaceIdInputValue}}/>
       <button class="custom-button inline" {{action "addWorkspaceId"}}>Add Workspace</button>
       <div class="alert-container">
       {{#if this.addedId}}
