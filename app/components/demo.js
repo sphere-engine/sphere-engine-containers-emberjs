@@ -2,10 +2,10 @@ import Component from '@glimmer/component';
 import { action } from '@ember/object';
 import { tracked } from '@glimmer/tracking';
 import { inject as service } from '@ember/service';
+import Workspace from 'ember-sphere-containers/services/workspace';
+import SdkLoader from 'ember-sphere-containers/services/sdk-loader';
 
 export default class DemoComponent extends Component {
-  @service sdkLoader;
-  @service workspaceService;
   @tracked isModalOpen = false;
   @tracked visible = {};
   @tracked elemId = '';
@@ -22,7 +22,7 @@ export default class DemoComponent extends Component {
 
   constructor() {
     super(...arguments);
-    this.sdkLoader.loadSdk();
+    SdkLoader.loadSdk();
   }
 
   @action
@@ -97,13 +97,13 @@ export default class DemoComponent extends Component {
         }
       }
 
-      this.workspaceService.render(this.currentWorkspaceId);
+      Workspace.render(this.elemId);
     }
   }
 
   @action
   destroyWorkspace() {
-    this.workspaceService.destroy(this.currentWorkspaceId);
+    Workspace.destroy(this.elemId);
 
     this.workspaceIds = this.workspaceIds.filter(id => id !== this.currentWorkspaceId);
 
@@ -131,10 +131,8 @@ export default class DemoComponent extends Component {
   subscribe() {
     let eventChoice = document.getElementById('eventChoice');
     let selectedEvent = eventChoice.options[eventChoice.selectedIndex].value;
-    let renderedWorkspace = document.getElementById(this.elemId);
-    if (renderedWorkspace) {
-      let workspace = window.SE.workspace(this.elemId);
-      workspace.events.subscribe(selectedEvent, this.handleEvent);
+    if (this.currentWorkspaceId) {
+      Workspace.subscribe(this.elemId, selectedEvent, this.handleEvent);
       console.log('Subscribed to event: ' + selectedEvent);
       this.subscriptions = {
         ...this.subscriptions,
@@ -150,10 +148,8 @@ export default class DemoComponent extends Component {
   unsubscribe() {
     let eventChoice = document.getElementById('eventChoice');
     let selectedEvent = eventChoice.options[eventChoice.selectedIndex].value;
-    let renderedWorkspace = document.getElementById(this.elemId);
-    if (renderedWorkspace) {
-      let workspace = window.SE.workspace(this.elemId);
-      workspace.events.unsubscribe(selectedEvent, this.handleEvent);
+    if (this.currentWorkspaceId) {
+      Workspace.unsubscribe(this.elemId, selectedEvent, this.handleEvent);
       console.log('Unsubscribed to event: ' + selectedEvent);
       this.subscriptions = {
         ...this.subscriptions,

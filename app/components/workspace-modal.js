@@ -3,6 +3,7 @@
 import Component from '@glimmer/component';
 import { action } from '@ember/object';
 import { tracked } from '@glimmer/tracking';
+import Workspace from 'ember-sphere-containers/services/workspace';
 
 export default class WorkspaceModalComponent extends Component {
   @tracked isRendered = false;
@@ -11,11 +12,7 @@ export default class WorkspaceModalComponent extends Component {
   onClose() {
     if (this.args.onClose) {
       this.args.onClose();
-      let workspace = window.SE.workspace('modal-workspace');
-
-      if (workspace) {
-        workspace.destroy();
-      }
+      Workspace.destroy('modal-workspace');
     }
   }
 
@@ -41,13 +38,7 @@ export default class WorkspaceModalComponent extends Component {
       }
     }
 
-    const workspace = window.SE.workspace('modal-workspace');
-    if (!workspace) {
-      window.SE.create(
-        'modal-workspace',
-        document.getElementById('modal-workspace'),
-      );
-    }
+    Workspace.render('modal-workspace');
 
     this.isRendered = true;
   }

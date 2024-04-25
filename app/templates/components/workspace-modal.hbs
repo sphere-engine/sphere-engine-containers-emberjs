@@ -4,7 +4,7 @@
   <div class="modal-content">
     <button class="btn-close close-button" {{action (fn this.onClose)}}></button>
     <div class="modal-body" style={{"height: 500px; width: 100%;"}}>
-        <div id="modal-workspace" data-id="modal-workspace" data-workspace={{@workspaceId}}></div>
+        {{workspace workspaceId=@workspaceId dataId="modal-workspace" }}
         {{#unless this.isRendered}}
           <button type="button" class="custom-button" {{action (fn this.showWorkspace)}}>Render</button>
         {{/unless}}
